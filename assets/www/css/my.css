@@ -1,0 +1,47 @@
+.quotebox {
+	margin: 0;
+	padding: 4px 24px;
+	background-color:#e5ff98;
+	background-image: url(../img/qm.gif);
+	background-repeat:no-repeat;
+	background-position: 2px 2px;
+}
+
+#grade_div th {
+	margin: 0;
+	padding: 4px;
+	border: 1px dotted #666666;
+	font-size: 10pt;
+}
+
+#grade_div td {
+	margin: 0;
+	padding: 4px;
+	border: 1px dotted #666666;
+	font-size: 10pt;
+}
+
+.fullwidth {
+	width: 100%;
+	border-spacing: 0px;
+}
+
+.sub {
+	background-color: #FEF9B1;
+}
+
+.subgrade-show, .subgrade-show:visited {
+	color: #1f5180;
+}
+.subgrade-show:hover {
+	text-decoration: underline;
+	color: #ff6600;
+}
+.subgrade-show:active {
+	text-decoration: underline;
+	color: #ff0000;
+}
+
+tr.sem {
+	background-color: #ffffcc;
+}

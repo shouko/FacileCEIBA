@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<!--
+    Copyright (c) 2012-2014 Adobe Systems Incorporated. All rights reserved.
+
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements.  See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership.  The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+     KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+-->
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="format-detection" content="telephone=no" />
+        <meta name="msapplication-tap-highlight" content="no" />
+        <!-- WARNING: for iOS 7, remove the width=device-width and height=device-height attributes. See https://issues.apache.org/jira/browse/CB-4323 -->
+        <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height"/>
+        <link rel="stylesheet" type="text/css" href="css/index.css" />
+        <link rel="stylesheet" type="text/css" href="mylibs/jquery.mobile-1.4.3/jquery.mobile-1.4.3.min.css" />
+        <title>CEIBA</title>
+
+        <script type="text/javascript" src="mylibs/js/jquery-1.11.1.min.js"></script>
+        <script type="text/javascript" src="mylibs/js/jquery.mobile.router.min.js"></script>
+        <script type="text/javascript" src="mylibs/jquery.mobile-1.4.3/jquery.mobile-1.4.3.min.js"></script>
+
+    </head>
+    <body>
+
+        <div data-role="page" id="home">
+            <div data-role="header" data-position="fixed" data-theme="b">
+                <h1>CEIBA</h1>
+                <a data-icon="refresh" class="ui-btn-left" id="home-refresh-btn">Refresh</a>
+                <a href="#settings" data-icon="gear" data-transition="slideup" class="ui-btn-right">Settings</a>
+            </div>
+
+            <div class="ui-content" role="main" id="home-content">
+
+            </div>
+        </div>
+
+        <script id="course-list-template" type="text/x-handlebars-template">
+            <ul data-role="listview" id="course-list">
+                {{#.}}<li><a href="#course-home?{{@index}}" style="white-space:normal;" data-transition="slide">{{title}}</a></li>{{/.}}
+           </ul>
+        </script>
+
+        <div data-role="page" id="course-home">
+            <div data-role="header" data-position="fixed" data-theme="b">
+                <h1>CEIBA</h1>
+                <a href="#home" data-transition="slide" data-direction="reverse" data-icon="arrow-l" class="ui-btn-left">Back</a>
+            </div>
+
+            <div class="ui-content" role="main" id="course-home-content">
+
+            </div>
+        </div>
+
+        <script id="course-home-list-template" type="text/x-handlebars-template">
+            <ul data-role="listview" id="course-home-list">
+                {{#.}}<li><a href="#course-content" style="white-space:normal;" data-transition="slide">{{title}}</a></li>{{/.}}
+           </ul>
+        </script>
+
+
+        <div data-role="page" id="course-content">
+            <div data-role="header" data-position="fixed" data-theme="b">
+                <h1>課程內容</h1>
+                <a data-icon="refresh" class="ui-btn-right" id="course-content-refresh-btn">Refresh</a>
+                <a href="#course-home" data-transition="slide" data-direction="reverse" data-icon="arrow-l" class="ui-btn-left">Back</a>
+            </div>
+
+            <div class="ui-content" role="main" id="course-content-content">
+
+            </div>
+        </div>
+
+        <script id="course-content-list-template" type="text/x-handlebars-template">
+            <ul data-role="listview" id="course-content-list">
+                {{#.}}<li><a href="#content-post?{{@index}}" style="white-space:normal;" data-transition="slide">{{title}}</a></li>{{/.}}
+           </ul>
+        </script>
+
+        <div data-role="page" id="content-post">
+            <div data-role="header" data-position="fixed" data-theme="b">
+                <h1>講義</h1>
+
+                <a class="ui-btn-right" data-icon="star" id="post-save-btn">Save</a>
+                <a href="#course-content" class="ui-btn-left" data-transition="slide"
+                        data-direction="reverse" data-icon="arrow-l">Back</a>
+            </div>
+
+            <div class="ui-content" role="main" id="content-post-content">
+            </div>
+        </div>
+
+        <script id="content-post-template" type="text/x-handlebars-template">
+            <h2>{{date}}</h2>
+            <h3>{{title}}</h3>
+            <h4><a href="{{file_link}}" target="_blank">{{file_name}}</a></h4>
+            <p>{{{body}}}</p>
+        </script>
+
+
+        <div data-role="page" id="post">
+            <div data-role="header" data-position="fixed" data-theme="b">
+                <h1>Post</h1>
+
+                <a class="ui-btn-right" data-icon="star" id="post-save-btn">Save</a>
+                <a href="#course-content" class="ui-btn-left" data-transition="slide"
+                        data-direction="reverse" data-icon="arrow-l">Course</a>
+            </div>
+
+            <div class="ui-content" role="main" id="post-content">
+            </div>
+        </div>
+
+        <script id="post-template" type="text/x-handlebars-template">
+            <h2><a href="{{url}}" target="_blank">{{title}}</a></h2>
+            <p>{{{body}}}</p>
+        </script>
+
+        <div data-role="page" id="settings">
+            <div data-role="header" data-position="fixed" data-theme="b">
+                <h1>Settings</h1>
+                <a href="#home" data-transition="slideup" data-direction="reverse" data-icon="check" class="ui-btn-right">Done</a>
+            </div>
+
+            <div role="main" class="ui-content">
+                <ul data-role="listview" id="settings-list">
+                    <li>關於我們</li>
+                    <li>登出</li>
+                 </ul>
+            </div>
+        </div>
+
+        <script id="blog-list-template" type="text/x-handlebars-template">
+            <ul data-role="listview" id="blog-list">
+                {{#.}}<li><a href="#post?{{@index}}" style="white-space:normal;" data-transition="slide">{{title}}</a></li>{{/.}}
+           </ul>
+        </script>
+
+
+
+        <script type="text/javascript" src="cordova.js"></script>
+        <script type="text/javascript" src="mylibs/js/fastclick.min.js"></script>
+        <script type="text/javascript" src="mylibs/js/handlebars-v1.3.0.js"></script>
+        <script type="text/javascript" src="js/index.js"></script>
+
+        <script type="text/javascript">
+            appCtrl.app.initialize();
+        </script>
+    </body>
+</html>
