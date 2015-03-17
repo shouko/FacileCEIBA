@@ -1,7 +1,7 @@
 FacileCEIBA
 ===========
 
-FacileCEIBA is a official CEIBA mobile app developed by the CTLD of National Taiwan University.
+FacileCEIBA is an official CEIBA mobile app developed by the CTLD of National Taiwan University.
 
 ## Getting Started
 To install this app on an Android device, please refer to **CEIBA_0226.apk**
