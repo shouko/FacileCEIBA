@@ -36,6 +36,14 @@
     text-shadow: 0 1px 0 #005599;
 }
 
+td {
+    border-width: 1px;
+    border-style: dashed;
+    border-color: #dddddd;
+    text-align: center;
+    vertical-align: middle;
+}
+
 /* Font
 
 -----------------------------------------------------------------------------------------------------------*/

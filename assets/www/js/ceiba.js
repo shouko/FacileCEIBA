@@ -4,7 +4,7 @@ appCtrl.app = {
     semesterNow: "",
     courseNow: "0",
     student_cname: null,
-    student_id: "",
+    student_id: null,
     // baseFileName: "index_ceiba_all_access.html",
     baseFileName: "index_ceiba.html",
 
@@ -14,12 +14,12 @@ appCtrl.app = {
     baseLogoutUrl: "https://ceiba.ntu.edu.tw/course/f03067/app/web/logout_web.php",
     weekNames: [
         "",
-        "星期一",
-        "星期二",
-        "星期三",
-        "星期四",
-        "星期五",
-        "星期六",
+        "一",
+        "二",
+        "三",
+        "四",
+        "五",
+        "六",
     ],
 
     semesterData: [],
@@ -32,6 +32,9 @@ appCtrl.app = {
 
     courseTimeTableData: [],
     gridData: [],
+    course_lang: undefined,
+    course_info: undefined,
+    teacher_info: [],
     bulletin_data: [],
     content_data: [],
     homeworks_data: [],
@@ -42,6 +45,8 @@ appCtrl.app = {
     // NTU CEIBA
     semesterTemplate: {},
     gridTemplate: {},
+    courseInfoTemplate: {},
+    teacherInfoTemplate: {},
     announcementTemplate: {},
     contentTemplate: {},
     hwTemplate: {},
@@ -70,7 +75,7 @@ appCtrl.app = {
         this.registerDownloadEventOnUrl();
 
         // ADD AJAX LOADING ICON
-        this.registerAjaxLoadingIcon();
+        this.preSetupAjax();
 
         // REGISTER SEMESTER BTN EVENT
         $('#semester_div').on("change", "select", function() {
@@ -87,7 +92,7 @@ appCtrl.app = {
         $('#formTest').submit(function(e) {
             e.preventDefault();
             app.student_id = $("input[name='student_id']").val();
-            if (app.student_id == null) {
+            if (app.student_id == "") {
                 // return;
                 app.student_id = "b99b01078";
             }
@@ -103,6 +108,8 @@ appCtrl.app = {
         var app = this;
         this.semesterTemplate = Handlebars.compile($('#semester_options_template').html());
         this.gridTemplate = Handlebars.compile($('#grid_template').html());
+        this.courseInfoTemplate = Handlebars.compile($('#course_info_template').html());
+        this.teacherInfoTemplate = Handlebars.compile($('#teacher_info_template').html());
         this.announcementTemplate = Handlebars.compile($('#announcement_template').html());
         this.contentTemplate = Handlebars.compile($('#content_template').html());
         this.hwTemplate = Handlebars.compile($('#hw_template').html());
@@ -130,6 +137,30 @@ appCtrl.app = {
 
             return out + "</p>";
         });
+
+        Handlebars.registerHelper('l10n', function(keyword) {
+            // var lang = (navigator.language) ? navigator.language : navigator.userLanguage; 
+            var lang = (app.course_lang) ? app.course_lang : 'big5'; 
+         
+            // pick the right dictionary (if only one available assume it's the right one...)
+            // var locale = window.locale[lang] || window.locale['en-US'] || window.locale || false;
+            var locale = window.locale[lang] || window.locale['eng'] || false;
+
+            // exit now if there's no data
+            if( !locale ) return keyword;
+            
+            // loop through all the key hierarchy (if any)
+            var target = locale;
+            var key = keyword.split(".");
+            for (i = 0; i < key.length; ++i){
+                target = target[key[i]];
+            }
+
+            // fallback to the original string if nothing found
+            target = target || keyword; 
+            //output
+            return target;
+        });
     },
 
     registerDownloadEventOnUrl: function()
@@ -155,8 +186,15 @@ appCtrl.app = {
         });
     },
 
-    registerAjaxLoadingIcon: function()
+    preSetupAjax: function()
     {
+        // $.ajaxSetup({
+        //     dataFilter: function (response, type) {
+        //         response = he.decode(response);
+        //         return response;
+        //     }
+        // });
+
         $(document).ajaxStart(function() {
             $.mobile.loading('show');
         });
@@ -239,72 +277,71 @@ appCtrl.app = {
         var url = app.baseUrl;
 
         if (app.semesterNow != "") {
-            url += "semester=" + app.semesterNow;
+            url += "&semester=" + app.semesterNow;
         }
 
-        app.jqXHR = $.getJSON(url, function(data){
+        // alert(url);
 
-            // Until finishing ajax, we show page here
-            if (ui.bCDeferred != null) {
-                ui.bCDeferred.resolve();
-            }
+        $.ajax({
+            dataType: "json",
+            url: url,
+            dataFilter: function (response, type) {
+                response = he.decode(response);
+                return response;
+            },
+            success: function(data){
 
-            app.semesterData = data.semester;
-            app.gridData = data.grid;
-            app.courseTimeTableData = data.calendar;
-            app.student_cname = data.student_cname;
-            if (app.student_id == "") {
-                app.student_id = data.student_id;
-            }
-
-            $.each(app.semesterData, function(i, v) {
-                if (v.now != null) {
-                    app.semesterNow = v.semester;
+                // Until finishing ajax, we show page here
+                if (ui.bCDeferred != null) {
+                    ui.bCDeferred.resolve();
                 }
-            });
 
-            if (app.student_cname !== null) {
-                $("#student_id").text(app.student_cname+" 您好！");
-            } else {
-                $("#student_id").text(app.student_id+" 您好！");
+                app.semesterData = data.semester;
+                app.gridData = data.grid;
+                app.courseTimeTableData = data.calendar;
+                app.student_cname = data.student_cname;
+                if (app.student_id == "") {
+                    app.student_id = data.student_id;
+                }
+
+                $.each(app.semesterData, function(i, v) {
+                    if (v.now != null) {
+                        app.semesterNow = v.semester;
+                    }
+                });
+
+                if (app.student_cname !== null) {
+                    $("#student_id").text(app.student_cname+" 您好！");
+                } else {
+                    $("#student_id").text(app.student_id+" 您好！");
+                }
+
+                $("#semester_div").html(app.semesterTemplate(app.semesterData));
+                $("#semester_div").enhanceWithin();
+
+                $("#grid_div").html(app.gridTemplate(app.gridData));
+                $("#grid_div").enhanceWithin();
+
+                app.createCalendar();
+
+                if (app.semesterNow == null) {
+                    app.semesterNow = app.semesterData[0].semester;
+                }
+
+                // Show the view
+                app.showHome(true);
+
+            },
+            error: function(jqXHR, textStatus, errorThrown){ /* assign handler */
+                /* alert(jqXHR.responseText) */
+
+                // Until finishing ajax, we show page here
+                ui.bCDeferred.resolve();
+                // Error message
+                window.plugins.toast.showShortBottom('連線錯誤');
             }
-
-            $("#semester_div").html(app.semesterTemplate(app.semesterData));
-            $("#semester_div").enhanceWithin();
-
-            $("#grid_div").html(app.gridTemplate(app.gridData));
-            $("#grid_div").enhanceWithin();
-
-            // $("#announcement_div").html(app.announcementTemplate(app.bulletin_data));
-            // $("#announcement_div").enhanceWithin();
-
-            // $("#content_div").html(app.contentTemplate(app.content_data));
-            // $("#content_div").enhanceWithin();
-
-            // $("#hw_div").html(app.hwTemplate(app.homeworks_data));
-            // $("#hw_div").enhanceWithin();
-
-            app.createCalendar();
-
-            if (app.semesterNow == null) {
-                app.semesterNow = app.semesterData[0].semester;
-            }
-
-            // Show the view
-            app.showHome(true);
-
-        }).error(function(jqXHR, textStatus, errorThrown){ /* assign handler */
-            /* alert(jqXHR.responseText) */
-
-            // Until finishing ajax, we show page here
-            ui.bCDeferred.resolve();
-            // Error message
-            window.plugins.toast.showShortBottom('連線錯誤');
 
         });
-
-        // Time out
-        // setTimeout(function(){ p.abort(); }, 8000);
 
     },
 
@@ -321,23 +358,31 @@ appCtrl.app = {
 
         var url = app.baseUrl + "&semester=" +app.semesterNow + "&course_sn="+course_sn;
 
-        app.jqXHR = $.getJSON(url, function(data){
-            // Until finishing ajax, we show page here
-            ui.bCDeferred.resolve();
+         $.ajax({
+            dataType: "json",
+            url: url,
+            dataFilter: function (response, type) {
+                response = he.decode(response);
+                return response;
+            },
+            success: function(data){
+                // Until finishing ajax, we show page here
+                ui.bCDeferred.resolve();
 
-            app.parseCourseJSON(data);
+                app.parseCourseJSON(data);
 
-            app.showHome(false);
+                app.showHome(false);
 
-        }).error(function(jqXHR, textStatus, errorThrown){ /* assign handler */
+            },
+            error: function(jqXHR, textStatus, errorThrown){ /* assign handler */
+                // Until finishing ajax, we show page here
+                ui.bCDeferred.resolve();
 
-            // Until finishing ajax, we show page here
-            ui.bCDeferred.resolve();
+                // Error message
+                window.plugins.toast.showShortBottom('連線錯誤');
 
-            // Error message
-            window.plugins.toast.showShortBottom('連線錯誤');
-
-            // alert("Network error occurred!");
+                // alert("Network error occurred!");
+            }
         });
 
     },
@@ -346,12 +391,35 @@ appCtrl.app = {
     {
         var app = this;
 
+        app.course_lang = data.lang;
+        app.course_info = data.course_info;
+        app.teacher_info = data.teacher_info;
         app.bulletin_data = data.bulletin;
         app.content_data = data.contents;
         app.content_files = data.content_files;
         app.homeworks_data = data.homeworks;
         app.course_grade = data.course_grade;
         app.board_is_open = data.board;
+
+        // $("#select-choice-2").
+
+        // Append course_info
+        if (app.course_info === undefined) {
+            $('#course_info_div').hide();
+        } else {
+            app.appendCourseInfoData();
+            $("#course_info_div").html(app.courseInfoTemplate(app.course_info));
+            $("#course_info_div").enhanceWithin();
+            $('#course_info_div').show();
+        }
+
+        if (app.teacher_info === undefined) {
+            $('#teacher_info_div').hide();
+        } else {
+            $("#teacher_info_div").html(app.teacherInfoTemplate(app.teacher_info));
+            $("#teacher_info_div").enhanceWithin();
+            $('#teacher_info_div').show();
+        }
 
         // Append content_files to content_data
         if (app.bulletin_data === undefined) {
@@ -397,6 +465,20 @@ appCtrl.app = {
             $('#board_btn').show();
         }
 
+        // Append Listener after button is updated
+        app.appendExpandBtnListener();
+    },
+
+    appendCourseInfoData: function()
+    {
+        var app = this;
+        app.course_info['class_time'] = "";
+
+        for (day = 1; day < 7; day++) {
+            if (app.course_info['day'+day] !== undefined) {
+                app.course_info['class_time'] += app.weekNames[day]+app.course_info['day'+day]+" ";
+            }
+        }
     },
 
     appendHomeworkDatas: function()
@@ -437,6 +519,25 @@ appCtrl.app = {
                     cv.files.push(tmp);
                 }
             });
+        });
+    },
+
+    appendExpandBtnListener: function()
+    {
+        // REGISTER EXPAND/COLLAPSE ALL BUTTON
+        $('.expand_btn').on("click", function(e) {
+            e.preventDefault();
+            isCollapsed = $(this).data("isCollapsed");
+            if (isCollapsed === undefined) {
+                isCollapsed = true;
+            }
+            isCollapsed = !isCollapsed;
+
+            $(this).data("isCollapsed", isCollapsed);
+            $(this).parent().parent().parent().find(".ui-collapsible")
+                .collapsible( "option", "collapsed", isCollapsed );
+
+            return false;
         });
     },
 
@@ -498,7 +599,7 @@ appCtrl.app = {
 
         for (var k = 0; k < this.weekNames.length; k++) {
             var th = $('<Th WIDTH="12%"></Th>');
-            th.append(this.weekNames[k]);
+            th.append("星期" + this.weekNames[k]);
             tr_day.append(th);
         }
 
@@ -555,15 +656,19 @@ appCtrl.app = {
                 var course = cal_arr[slot][day];
 
                 if (course !== undefined) {
+                    var crs_cname = course['crs_cname'];
+                    if (crs_cname.length > 5) {
+                        crs_cname = crs_cname.substr(0,4)+"..."; 
+                    }
                     if (course["course_sn"]) {
                         var a = $('<a href="#page1?'+this.semesterNow+
                             ((course["course_sn"]) ? '&'+course["course_sn"] : '')
-                            +'">'+course["crs_cname"]+'</a>');
+                            +'">'+crs_cname+'</a>');
                         var font = $('<FONT SIZE="2"></FONT>');
                         font.append(a);
                     }
                     else {
-                        var font = $('<FONT SIZE="2">'+course["crs_cname"]+'</FONT>');
+                        var font = $('<FONT SIZE="2">'+crs_cname+'</FONT>');
                     }
                     td.append(font);
                 }
@@ -581,6 +686,7 @@ appCtrl.app = {
         if (show) {
             $('#calendar_table_div').show();
             $('#course_content').hide();
+            $('#board_btn').hide();
         } else {
             $('#calendar_table_div').hide();
             $('#course_content').show();
@@ -591,6 +697,7 @@ appCtrl.app = {
     onDeviceReady: function()
     {
         FastClick.attach(document.body);
+        // Register the event listener
     },
 
     boardBeforeCreate: function(event, args, ui, page, evt)
@@ -632,7 +739,6 @@ appCtrl.app = {
 
                         replacePattern1 = /\[\s*img[^>]*\]([^<]*)\[\s*\/\s*img\s*\]/ig;
                         v2.content = v2.content.replace(replacePattern1, '<img src="1">');
-                        v2.content = he.decode(v2.content);
 
                         replacePattern1 = /\[\s*b[^>]*\]([^<]*)\[\s*\/\s*b\s*\]/ig;
                         v2.content = v2.content.replace(replacePattern1, '<strong>1</strong>');
@@ -650,7 +756,8 @@ appCtrl.app = {
             // Until finishing ajax, we show page here
             ui.bCDeferred.resolve();
             // Error message
-            alert("Network error occurred!");
+            window.plugins.toast.showShortBottom('連線錯誤');
+            // alert("Network error occurred!");
         });
     },
 

@@ -45,3 +45,39 @@
 tr.sem {
 	background-color: #ffffcc;
 }
+
+#course_info_div table caption, #teacher_info_div table caption {
+  margin: 4px 0 0 -1px;
+  padding: 6px;
+  width: auto;
+  font-weight: bold;
+  color: #ffffff;
+  text-align: center;
+  border: 1px solid #666666;
+  background-color: #666666;
+}
+
+.ui-collapsible-heading > .ui-btn {
+    /*overflow: visible !important;*/
+}
+
+#course_info_div th, #teacher_info_div th {
+	margin: 0;
+  padding: 4px;
+  border: 1px dotted #666666;
+  background-color: #ebebeb;
+  font-size: 10pt;
+  width: 25%;
+}
+
+#course_info_div td, #teacher_info_div td {
+  margin: 0;
+  padding: 4px;
+  border: 1px dotted #666666;
+  font-size: 10pt;
+}
+
+#course_info_div table, #teacher_info_div table{
+  width: 100%;
+  border-spacing: 0.5px;
+}

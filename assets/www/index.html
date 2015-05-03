@@ -11,13 +11,22 @@
         <script type="text/javascript">
         // Wait for device API libraries to load
     //
+    
+
     document.addEventListener("deviceready", onDeviceReady, false);
 
     // device APIs are available
     //
+    // document.addEventListener("backbutton", onBackKeyDown, false);
+
     function onDeviceReady() {
         window.location = "https://ceiba.ntu.edu.tw/course/f03067/app/info_web.php";
     }
+
+    // function onBackKeyDown() {
+    //     alert("OnBackKeyDown!");
+    //     navigator.app.exitApp();
+    // }
 
         </script>
 
