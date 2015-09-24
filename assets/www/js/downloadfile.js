@@ -68,6 +68,8 @@ var downloadfile = {
                       var fileId = downloadThis.fileId;
                       downloadThis.fileId++;
 
+                      window.plugins.toast.showLongBottom("下載完成至："+fp);
+                      
                     // window.plugin.notification.local.promptForPermission();
                     window.plugin.notification.local.add({
                         id:         fileId.toString(),  // A unique id of the notifiction

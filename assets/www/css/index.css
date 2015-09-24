@@ -798,7 +798,7 @@ html body .ui-group-theme-d a {
 html .ui-bar-d a:visited,
 html .ui-body-d a:visited,
 html body .ui-group-theme-d a:visited {
-    color: #3388cc /*{d-link-visited}*/;
+    color: #3388cc {d-link-visited};
 }
 .ui-page-theme-d a:hover,
 html .ui-bar-d a:hover,

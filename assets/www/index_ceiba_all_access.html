@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <meta charset=utf-8 />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
         <meta name="format-detection" content="telephone=no" />
         <meta name="msapplication-tap-highlight" content="no" />
         <!-- WARNING: for iOS 7, remove the width=device-width and height=device-height attributes. See https://issues.apache.org/jira/browse/CB-4323 -->
@@ -10,11 +10,6 @@
         <link rel="stylesheet" type="text/css" href="css/my.css" />
         <link rel="stylesheet" type="text/css" href="mylibs/jquery.mobile-1.4.3/jquery.mobile-1.4.3.min.css" />
         <title>CEIBA</title>
-
-        <script type="text/javascript" src="mylibs/js/jquery-1.11.1.min.js"></script>
-        <script type="text/javascript" src="mylibs/js/jquery.mobile.router.min.js"></script>
-        <script type="text/javascript" src="mylibs/jquery.mobile-1.4.3/jquery.mobile-1.4.3.min.js"></script>
-
     </head>
     <body>
 
@@ -191,7 +186,7 @@
                         <p>{{subject}}</p>
                         <a href="https://ceiba.ntu.edu.tw/course/{{course_sn}}/bulletin/{{attach}}" data-ajax="false">{{attach}}</a>
                         {{#if content}}
-                            <pre style="font-size: 1em;line-height: 1.3; font-family: sans-serif;">{{content}}</pre>
+                            <pre style="font-size: 1em;line-height: 1.3; font-family: sans-serif;">{{#utf8 content}}{{/utf8}}</pre>
                         {{/if}}
                         <p>{{post_time}}</p>
                     </div>
@@ -214,7 +209,7 @@
                     <div data-role="collapsible">
                         <h2>{{unit}} {{notes}}</h2>
                         {{#if subject}}
-                            <p>{{subject}}</p>
+                            <p>{{#utf8 subject}}{{/utf8}}</p>
                         {{else}}
                             <p>{{#l10n "no_content"}}{{/l10n}}</p>
                         {{/if}}
@@ -245,7 +240,7 @@
                     <div data-role="collapsible">
                         <h2>{{name}}</h2>
                         <p>{{name}}</p>
-                        <p>{{description}}</p>
+                        <p>{{#utf8 description}}{{/utf8}}</p>
                         {{#if pub_day}}
                             <p>{{#l10n "pub_date"}}{{/l10n}}: {{pub_day}} {{pub_hour}}</p>
                         {{/if}}
@@ -270,10 +265,8 @@
             <div id="grade_div">
             </div>
             <script id="grade_template" type="text/x-handlebars-template">
-           
             <div data-role="collapsible" data-theme="c" data-content-theme="c">
-                <h1>{{#l10n "grades"}}{{/l10n}}
-                <Button class="expand_btn ui-btn-right" data-role="button" data-mini="true" data-inline="true" data-icon="bars" data-iconpos="notext"></Button></h1>
+                <h1>{{#l10n "grades"}}{{/l10n}}</h1>
                 {{#if this}}
                 <table class="ui-shadow fullwidth">
                     <thead>
@@ -374,12 +367,19 @@
 </div>
 
 <div data-role="page" id="board_post" data-theme="d">
-    <div>
+    <div id="board_post_header">
+    </div>
+    <!-- Pass 2 arguments to writing board post page -->
+    <!-- board_sn, parent_sn -->
+    <!-- board_sn: Which board you are in. 
+         parent_sn: 0 means new topic. Others are reply -->
+    <script id="board_post_header_template" type="text/x-handlebars-template">
         <div data-role="header" data-position="fixed">
             <h1>討論區</h1>
             <a href="#board_page?0" class="ui-btn-left" data-transition="slide" data-direction="reverse" data-icon="arrow-l">上一頁</a>
+            <a href="#writing_board_post?publish&{{board_sn}}&0" class="ui-btn-right" data-transition="slideup" data-icon="edit">發表主題</a>
         </div>
-    </div>
+    </script>
 
     <div class="ui-content" role="main" id="board-post">
     </div>
@@ -388,12 +388,11 @@
             {{#if this}}
             {{#.}}
             <li><a href="#board_post_content?{{sn}}" style="white-space:normal;" data-transition="slide">
-
                 <h2>{{subject}}</h2>
                 <p><strong>
                     發表人:
-                    {{#if cname}}
-                        {{cname}}
+                    {{#if cauthor}}
+                        {{cauthor}}
                     {{else}}
                         {{author}}
                     {{/if}}
@@ -418,39 +417,81 @@
     <script id="board_post_content_header_template" type="text/x-handlebars-template">
     <div data-role="header" data-position="fixed">
         <h1>討論區</h1>
-        <a href="#board_post?{{post_id}}" class="ui-btn-left" data-transition="slide" data-direction="reverse" data-icon="arrow-l">上一頁</a>
+        <a href="#board_post?{{board_sn}}" class="ui-btn-left" data-transition="slide" data-direction="reverse" data-icon="arrow-l">上一頁</a>
+        <a href="#writing_board_post?reply&{{board_sn}}&{{post_sn}}&{{subject}}" class="ui-btn-right" data-transition="slideup" data-icon="edit">回覆</a>
     </div>
     </script>
 
     <div class="ui-content" role="main" id="board-post-content">
     </div>
     <script id="board-post-content-template" type="text/x-handlebars-template">
-            {{#if this}}
-            {{#.}}
-            <div class="ui-body ui-body-a ui-corner-all">
-                <h3>{{subject}}</h3>
-                <p><strong>發表人:
-                    {{#if cname}}
-                        {{cname}}
-                    {{else}}
-                        {{author}}
-                    {{/if}}</strong></p>
-                <p>{{post_time}}</p>
-                <p>{{#html content}}{{/html}}</p>
-                {{#if attach}}
-                    <p><img src="img/attach.gif">檔案連結: <a href="https://ceiba.ntu.edu.tw/course/{{course_sn}}/board/{{file_path}}">{{attach}}</a>
-                {{/if}}
-            </div>{{/.}}
-            {{else}}
-                <p>目前沒有人討論</p>
+        {{#if this}}
+        {{#.}}
+        <div class="ui-body ui-body-a ui-corner-all">
+            <h3>{{subject}}</h3>
+            <p><strong>發表人:
+                {{#if cauthor}}
+                    {{cauthor}}
+                {{else}}
+                    {{author}}
+                {{/if}}</strong></p>
+            <p>{{post_time}}</p>
+            <p>{{#utf8 content}}{{/utf8}}</p>
+            {{#if attach}}
+                <p><img src="img/attach.gif">檔案連結: <a href="https://ceiba.ntu.edu.tw/course/{{course_sn}}/board/{{file_path}}">{{attach}}</a></p>
             {{/if}}
+            <Button class="quote_btn" data-role="button" data-inline="true" data-mini="true" data-icon="tag" data-postsn="{{sn}}">引用</Button>
+        </div>{{/.}}
+        {{else}}
+            <p>目前沒有人討論</p>
+        {{/if}}
     </script>
-
     <div data-role="footer">
         <h2>NTU CEIBA 2015</h2>
     </div>
 </div>
 
+<div data-role="page" id="writing_board_post" data-theme="d">
+    <div id="writing_post_header">
+    </div>
+    <script id="writing_post_header_template" type="text/x-handlebars-template">
+    <div data-role="header" data-position="fixed">
+        <h1>{{header_text}}</h1>
+        {{#if publish_mode}}
+            <a href="#board_post?{{board_ind}}" class="ui-btn-left" data-transition="slideup" data-direction="reverse" data-icon="arrow-d">取消</a>
+        {{else}}
+            <a href="#board_post_content?{{post_sn}}" class="ui-btn-left" data-transition="slideup" data-direction="reverse" data-icon="arrow-d">取消</a>
+        {{/if}}
+        <a id="publish_btn" class="ui-btn-right" data-icon="edit">發表</a>
+    </div>
+    </script>
+
+    <div class="ui-content" role="main" id="writing-board-content">
+        <div class="ui-body ui-body-a ui-corner-all">
+            <form id="writing_board_form">
+                <fieldset>
+                    <div class="ui-field-contain">
+                        <label for="subject"><strong>主題</strong></label>
+                        <input type="text" name="subject" id="subject">
+                    </div>
+                </fieldset>
+                <fieldset>
+                    <div class="ui-field-contain">
+                        <label for="content"><strong>內容</strong></label>
+                        <textarea rows="8" name="content" id="content"></textarea>
+                    </div>
+                </fieldset>
+            </form>
+        </div>
+    </div>
+    
+    <div data-role="footer">
+        <h2>NTU CEIBA 2015</h2>
+    </div>
+</div>
+        <script type="text/javascript" src="mylibs/js/jquery-1.11.1.min.js"></script>
+        <script type="text/javascript" src="mylibs/js/jquery.mobile.router.min.js"></script>
+        <script type="text/javascript" src="mylibs/jquery.mobile-1.4.3/jquery.mobile-1.4.3.min.js"></script>
         <script type="text/javascript" src="cordova.js"></script>
         <script type="text/javascript" src="mylibs/js/fastclick.min.js"></script>
         <script type="text/javascript" src="mylibs/js/handlebars-v1.3.0.js"></script>

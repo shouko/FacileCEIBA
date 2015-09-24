@@ -13,7 +13,7 @@ Name: assets/www/mylibs/jquery.mobile-1.4.3/images/icons-png/star-blac
 SHA1-Digest: fzBQCJfossnWmvhHVxikaiHIIik=
 
 Name: res/xml/config.xml
-SHA1-Digest: x+x/8kdJb6sQaUJZZMRK8VNm63o=
+SHA1-Digest: esTebDsQLFekdQ1qCzFi8+jT0cU=
 
 Name: res/drawable-port-xhdpi-v4/screen.png
 SHA1-Digest: vFPeQjaqLAS6sZilCZUrPyl6jrw=
@@ -35,9 +35,6 @@ SHA1-Digest: mrct1FH4XA2udmx1ovySYndHbqE=
 
 Name: assets/www/mylibs/css/jquery.mobile-1.4.3.min.css
 SHA1-Digest: U21KGZsDE8MpPZLtrRzJ4MByHsU=
-
-Name: assets/www/test.html
-SHA1-Digest: pwXEXK+i/9p3QbhzofkdJ2+0LPg=
 
 Name: assets/www/mylibs/jquery.mobile-1.4.3/images/icons-svg/navigatio
  n-white.svg
@@ -122,7 +119,7 @@ Name: assets/www/mylibs/jquery.mobile-1.4.3/images/icons-svg/refresh-b
 SHA1-Digest: nuo0zXyTWQcbYfYL14b1BrFrn0U=
 
 Name: assets/www/cordova.js
-SHA1-Digest: 2Wgjw8ZrnJYmQGMQiVl3Ss1o164=
+SHA1-Digest: E1lapTaBw348FAweeYYpe4w1GNs=
 
 Name: assets/www/mylibs/jquery.mobile-1.4.3/images/icons-png/home-whit
  e.png
@@ -311,7 +308,7 @@ Name: assets/www/mylibs/jquery.mobile-1.4.3/images/icons-png/mail-blac
 SHA1-Digest: kCP0aK+dKOLPkoagIAR7J345Z1U=
 
 Name: assets/www/index_ceiba_all_access.html
-SHA1-Digest: 3dnvYDUZTTli6jxVcXySVw3x8Rk=
+SHA1-Digest: d0eoEMx83jegJE1IJ9xHzsQqQgE=
 
 Name: assets/www/mylibs/jquery.mobile-1.4.3/images/icons-svg/tag-black
  .svg
@@ -367,9 +364,6 @@ SHA1-Digest: BtPrdsNlJ9mwSLFMVLrdBI25Vhc=
 Name: assets/www/mylibs/jquery.mobile-1.4.3/images/icons-svg/back-blac
  k.svg
 SHA1-Digest: 33AJ9yodDtqiCM1mh2ybiob54a4=
-
-Name: res/drawable-xhdpi-v4/icon.png
-SHA1-Digest: owBTace+Lc8ByKvma05RhlgGFZ4=
 
 Name: assets/www/mylibs/jquery.mobile-1.4.3/images/icons-png/camera-bl
  ack.png
@@ -428,7 +422,7 @@ Name: assets/www/plugins/org.apache.cordova.file/www/Metadata.js
 SHA1-Digest: 3X0WnYr1p+kjMYGY2pxkwdxmFKY=
 
 Name: assets/www/index_ceiba.html
-SHA1-Digest: aq10bi5EpfJf2DgAmsdWURCCgtA=
+SHA1-Digest: GO0h54ynYSEu6uWNVqV1rTfw2Hw=
 
 Name: assets/www/mylibs/jquery.mobile-1.4.3/images/icons-svg/arrow-u-b
  lack.svg
@@ -527,7 +521,7 @@ Name: assets/www/mylibs/jquery.mobile-1.4.3/images/ajax-loader.gif
 SHA1-Digest: Lt+y/+O1Eh9CETAIz/RJAj21Lyc=
 
 Name: assets/www/js/downloadfile.js
-SHA1-Digest: ZB+RsMOLaQvYIyjALgSdYDxnebo=
+SHA1-Digest: RmC8v4KP/BkCq2klJki5KCR+ImA=
 
 Name: assets/www/res/screen/ios/screen-iphone-landscape-2x.png
 SHA1-Digest: 5ENi5rM4IAUJUmK6at6/AHnaQ7U=
@@ -747,20 +741,20 @@ Name: assets/www/mylibs/jquery.mobile-1.4.3/images/icons-png/bullets-b
 SHA1-Digest: F5fywOwPMz7rbiobxLf3+1vRFSo=
 
 Name: assets/www/css/index.css
-SHA1-Digest: XYvTYfsNKbs4Zwt6lURLfbTuuyU=
+SHA1-Digest: T7i8uMu71+d2SaEDYr/m4Z/hCPk=
 
 Name: assets/www/mylibs/jquery.mobile-1.4.3/images/icons-svg/carat-d-w
  hite.svg
 SHA1-Digest: hBGuuaj5ppb4XArjpbHMVv/jK4Q=
 
 Name: resources.arsc
-SHA1-Digest: GmJPH+gAlC39E+ychCTKHNnqywA=
+SHA1-Digest: IsBAOqsJYFGL7cM6c5WrithsV30=
 
 Name: assets/www/res/screen/ios/screen-iphone-landscape.png
 SHA1-Digest: lRG6WUQDbkpZP7TgcGiJyz+ltHg=
 
 Name: assets/www/config.xml
-SHA1-Digest: LL5MCRliW6ccyrWWxlgOlTb+sso=
+SHA1-Digest: fDh7AcD027sCKYn84SEnolEN+nY=
 
 Name: assets/www/mylibs/js/jquery.mobile.router.min.js
 SHA1-Digest: hr95a5gB/hvDC6NXePjvfdwlrpE=
@@ -778,7 +772,7 @@ Name: assets/www/mylibs/jquery.mobile-1.4.3/images/icons-png/back-whit
 SHA1-Digest: ZrxLjqsfqziF5MJ6Xae+Tp47+Ws=
 
 Name: AndroidManifest.xml
-SHA1-Digest: HrraAm131Gi7cyksjhspr8oMyUM=
+SHA1-Digest: 0LBqRHnbtLmfPIrLLWpwBILgUwE=
 
 Name: assets/www/mylibs/jquery.mobile-1.4.3/images/icons-svg/plus-blac
  k.svg
@@ -840,7 +834,7 @@ Name: assets/www/mylibs/jquery.mobile-1.4.3/images/icons-png/back-blac
 SHA1-Digest: Bp9DdNJElX2ER8OxJNb2z+mNZpk=
 
 Name: classes.dex
-SHA1-Digest: ai1Dl1jfp/Div25p5jPlLGeqi1Y=
+SHA1-Digest: vpB6U1ORjp3Imd8GicGw4AeROFM=
 
 Name: assets/www/plugins/com.phonegap.plugins.fileopener/www/fileopene
  r.js
@@ -984,9 +978,6 @@ Name: assets/www/mylibs/jquery.mobile-1.4.3/images/icons-png/delete-wh
  ite.png
 SHA1-Digest: QW/6y1BUOWqc/MFafznqK9uzXfs=
 
-Name: assets/www/spec.html
-SHA1-Digest: w9/CYecDvknKKoNiJLCH7FPL7vw=
-
 Name: assets/www/plugins/org.apache.cordova.file/www/Flags.js
 SHA1-Digest: 0Uu8pBiwVbmhGmpeoPn3cqiu6h4=
 
@@ -1096,7 +1087,7 @@ Name: assets/www/res/screen/blackberry/screen-225.png
 SHA1-Digest: 3DDY3f9kpDAmHlfybPbVzMYBWNE=
 
 Name: assets/www/js/ceiba.js
-SHA1-Digest: 9BqnJKCKogLOTCjORUpmDE/Gx1E=
+SHA1-Digest: 3aLOw1rbbA8nUwUX9q/+06gzz0E=
 
 Name: assets/www/mylibs/jquery.mobile-1.4.3/images/icons-svg/carat-r-b
  lack.svg
@@ -1107,7 +1098,7 @@ Name: assets/www/mylibs/jquery.mobile-1.4.3/jquery.mobile.inline-png-1
 SHA1-Digest: G0VKlbrGB7sp/0fnS3S+6oVOvIk=
 
 Name: assets/www/index.html
-SHA1-Digest: K6kZT28OcJwidMn0o6HMkOOOBcg=
+SHA1-Digest: 7mPTljxl4kpYp+ql/8fN/PGjcv0=
 
 Name: assets/www/spec/helper.js
 SHA1-Digest: y5Tfxnsc7GA289HJFXCZED1R5eE=

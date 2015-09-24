@@ -5,21 +5,17 @@ appCtrl.app = {
     courseNow: "0",
     student_cname: null,
     student_id: null,
+    // Remember to change api version in index.html file
     // baseFileName: "index_ceiba_all_access.html",
     baseFileName: "index_ceiba.html",
 
-    // baseUrl: "https://ceiba.ntu.edu.tw/course/f03067/app/web/aceiba_web_api.php?",
+    // baseUrl: "https://ceiba.ntu.edu.tw/course/f03067/app/web/v1.1/aceiba_web_api.php?",
     baseUrl: "https://ceiba.ntu.edu.tw/course/f03067/app/login.php?api=1&",
 
     baseLogoutUrl: "https://ceiba.ntu.edu.tw/course/f03067/app/web/logout_web.php",
+
     weekNames: [
-        "",
-        "一",
-        "二",
-        "三",
-        "四",
-        "五",
-        "六",
+        "", "一", "二", "三", "四", "五", "六",
     ],
 
     semesterData: [],
@@ -53,10 +49,12 @@ appCtrl.app = {
     boardHeaderTemplate: {},
     boardPostTemplate: {},
     boardPostContentTemplate: {},
-    boardPostHeader: {},
+    boardPostContentHeader: {},
     gradeTemplate: {},
+    boardPostHeaderTemplate: {},
+    writingPostHeaderTemplate: {},
 
-    boardTopicIndex: 0,
+    boardsn: 0,
     boardTopicPostIndex: 0,
     boardPostsn: 0,
 
@@ -117,8 +115,10 @@ appCtrl.app = {
         this.boardHeaderTemplate = Handlebars.compile($('#board_header_template').html());
         this.boardPostTemplate = Handlebars.compile($('#board-post-template').html());
         this.boardPostContentTemplate = Handlebars.compile($('#board-post-content-template').html());
-        this.boardPostHeader = Handlebars.compile($('#board_post_content_header_template').html());
+        this.boardPostContentHeader = Handlebars.compile($('#board_post_content_header_template').html());
         this.gradeTemplate = Handlebars.compile($('#grade_template').html());
+        this.boardPostHeaderTemplate = Handlebars.compile($('#board_post_header_template').html());
+        this.writingPostHeaderTemplate = Handlebars.compile($('#writing_post_header_template').html());
 
         Handlebars.registerHelper('list', function(context, options) {
           var ret = "<ul>";
@@ -130,12 +130,8 @@ appCtrl.app = {
           return ret + "</ul>";
         });
 
-        Handlebars.registerHelper('html', function(context) {
-            var out = "<p>";
-
-            out = out + context;
-
-            return out + "</p>";
+        Handlebars.registerHelper('utf8', function(context) {
+            return he.decode(context);
         });
 
         Handlebars.registerHelper('l10n', function(keyword) {
@@ -188,13 +184,6 @@ appCtrl.app = {
 
     preSetupAjax: function()
     {
-        // $.ajaxSetup({
-        //     dataFilter: function (response, type) {
-        //         response = he.decode(response);
-        //         return response;
-        //     }
-        // });
-
         $(document).ajaxStart(function() {
             $.mobile.loading('show');
         });
@@ -274,21 +263,14 @@ appCtrl.app = {
         // Update Color
         app.setGridColor();
 
-        var url = app.baseUrl;
-
+        var url = app.baseUrl+"&mode=semester";
         if (app.semesterNow != "") {
-            url += "&semester=" + app.semesterNow;
+            url += "&semester="+app.semesterNow;
         }
-
-        // alert(url);
 
         $.ajax({
             dataType: "json",
             url: url,
-            dataFilter: function (response, type) {
-                response = he.decode(response);
-                return response;
-            },
             success: function(data){
 
                 // Until finishing ajax, we show page here
@@ -296,37 +278,7 @@ appCtrl.app = {
                     ui.bCDeferred.resolve();
                 }
 
-                app.semesterData = data.semester;
-                app.gridData = data.grid;
-                app.courseTimeTableData = data.calendar;
-                app.student_cname = data.student_cname;
-                if (app.student_id == "") {
-                    app.student_id = data.student_id;
-                }
-
-                $.each(app.semesterData, function(i, v) {
-                    if (v.now != null) {
-                        app.semesterNow = v.semester;
-                    }
-                });
-
-                if (app.student_cname !== null) {
-                    $("#student_id").text(app.student_cname+" 您好！");
-                } else {
-                    $("#student_id").text(app.student_id+" 您好！");
-                }
-
-                $("#semester_div").html(app.semesterTemplate(app.semesterData));
-                $("#semester_div").enhanceWithin();
-
-                $("#grid_div").html(app.gridTemplate(app.gridData));
-                $("#grid_div").enhanceWithin();
-
-                app.createCalendar();
-
-                if (app.semesterNow == null) {
-                    app.semesterNow = app.semesterData[0].semester;
-                }
+                app.parseSemesterJSON(data);
 
                 // Show the view
                 app.showHome(true);
@@ -336,7 +288,7 @@ appCtrl.app = {
                 /* alert(jqXHR.responseText) */
 
                 // Until finishing ajax, we show page here
-                ui.bCDeferred.resolve();
+                // ui.bCDeferred.resolve();
                 // Error message
                 window.plugins.toast.showShortBottom('連線錯誤');
             }
@@ -345,46 +297,72 @@ appCtrl.app = {
 
     },
 
-    updateCourseView: function(course_sn, ui)
+    parseSemesterJSON: function(data)
     {
         var app = this;
-
-        if (course_sn == null) {
-            return;
+        app.semesterData = data.semester;
+        app.gridData = data.grid;
+        app.courseTimeTableData = data.calendar;
+        app.student_cname = data.student_cname;
+        if (app.student_id == "") {
+            app.student_id = data.student_id;
         }
 
-        // Update Color
-        app.setGridColor();
-
-        var url = app.baseUrl + "&semester=" +app.semesterNow + "&course_sn="+course_sn;
-
-         $.ajax({
-            dataType: "json",
-            url: url,
-            dataFilter: function (response, type) {
-                response = he.decode(response);
-                return response;
-            },
-            success: function(data){
-                // Until finishing ajax, we show page here
-                ui.bCDeferred.resolve();
-
-                app.parseCourseJSON(data);
-
-                app.showHome(false);
-
-            },
-            error: function(jqXHR, textStatus, errorThrown){ /* assign handler */
-                // Until finishing ajax, we show page here
-                ui.bCDeferred.resolve();
-
-                // Error message
-                window.plugins.toast.showShortBottom('連線錯誤');
-
-                // alert("Network error occurred!");
+        $.each(app.semesterData, function(i, v) {
+            if (v.now != null) {
+                app.semesterNow = v.semester;
             }
         });
 
+        if (app.student_cname !== null) {
+            $("#student_id").text(app.student_cname+" 您好！");
+        } else {
+            $("#student_id").text(app.student_id+" 您好！");
+        }
+
+        $("#semester_div").html(app.semesterTemplate(app.semesterData));
+        $("#semester_div").enhanceWithin();
+
+        $("#grid_div").html(app.gridTemplate(app.gridData));
+        $("#grid_div").enhanceWithin();
+
+        app.createCalendar();
+
+        if (app.semesterNow == null) {
+            app.semesterNow = app.semesterData[0].semester;
+        }
+    },
+
+    updateCourseView: function(course_sn, ui)
+    {
+        var app = this;
+        if (course_sn == null) {
+            return;
+        }
+        // Update Color
+        app.setGridColor();
+        var url = app.baseUrl 
+            + "&semester="+app.semesterNow 
+            + "&course_sn="+course_sn
+            + "&mode=course";
+
+        $.ajax({
+            dataType: "json",
+            url: url,
+            success: function(data){
+                // Until finishing ajax, we show page here
+                ui.bCDeferred.resolve();
+                app.parseCourseJSON(data);
+                app.showHome(false);
+            },
+            error: function(jqXHR, textStatus, errorThrown){ /* assign handler */
+                // Until finishing ajax, we show page here
+                // ui.bCDeferred.resolve();
+
+                // Error message
+                window.plugins.toast.showShortBottom('連線錯誤');
+            }
+        });
     },
 
     parseCourseJSON: function(data)
@@ -400,8 +378,6 @@ appCtrl.app = {
         app.homeworks_data = data.homeworks;
         app.course_grade = data.course_grade;
         app.board_is_open = data.board;
-
-        // $("#select-choice-2").
 
         // Append course_info
         if (app.course_info === undefined) {
@@ -527,6 +503,8 @@ appCtrl.app = {
         // REGISTER EXPAND/COLLAPSE ALL BUTTON
         $('.expand_btn').on("click", function(e) {
             e.preventDefault();
+            var outerCollapsible = $(this).parent().parent().parent();
+
             isCollapsed = $(this).data("isCollapsed");
             if (isCollapsed === undefined) {
                 isCollapsed = true;
@@ -534,7 +512,15 @@ appCtrl.app = {
             isCollapsed = !isCollapsed;
 
             $(this).data("isCollapsed", isCollapsed);
-            $(this).parent().parent().parent().find(".ui-collapsible")
+
+            isOuterCollapsed = outerCollapsible.hasClass('ui-collapsible-collapsed');
+            if (isOuterCollapsed) {
+                // Change parent open or close state
+                outerCollapsible.collapsible("option", "collapsed", false);
+            }
+
+            // Change child open or close state
+            outerCollapsible.find(".ui-collapsible")
                 .collapsible( "option", "collapsed", isCollapsed );
 
             return false;
@@ -697,26 +683,28 @@ appCtrl.app = {
     onDeviceReady: function()
     {
         FastClick.attach(document.body);
-        // Register the event listener
     },
 
     boardBeforeCreate: function(event, args, ui, page, evt)
     {
-
         var app = this;
-        // this.dump(args);
 
-        if (args[1] == '0') {
+        // Restore to the initial state
+        app.boardsn = null;
+
+        if (args[1] == 0) {
+            $("#board-content").html(app.boardTemplate(app.boardData));
+            $("#board-content").enhanceWithin();
             return;
         }
 
         evt.preventDefault();
 
-        // evt.preventDefault();
         var url = app.baseUrl
             +"&semester="+app.semesterNow
             +"&course_sn="+app.courseNow
-            +"&board=1";
+            +"&board=0"
+            +"&mode=read_board";
 
         $("#board_page_header").html(app.boardHeaderTemplate(
             {semester: app.semesterNow, course_sn: app.courseNow}));
@@ -727,47 +715,80 @@ appCtrl.app = {
             ui.bCDeferred.resolve();
 
             app.boardData = data;
-            // app.gridData = data.grid;
-            // app.courseTimeTableData = data.calendar;
-
-            $.each(app.boardData, function(i, v) {
-                if (v.board_content.length > 0) {
-                    $.each(v.board_content, function(i2, v2) {
-                        v2.course_sn = app.courseNow;
-
-                        v2.post_time = v2.post_time.split('.')[0];
-
-                        replacePattern1 = /\[\s*img[^>]*\]([^<]*)\[\s*\/\s*img\s*\]/ig;
-                        v2.content = v2.content.replace(replacePattern1, '<img src="1">');
-
-                        replacePattern1 = /\[\s*b[^>]*\]([^<]*)\[\s*\/\s*b\s*\]/ig;
-                        v2.content = v2.content.replace(replacePattern1, '<strong>1</strong>');
-                        console.log(v2.content);
-                    });
-                }
-            });
 
             $("#board-content").html(app.boardTemplate(app.boardData));
             $("#board-content").enhanceWithin();
 
         }).error(function(jqXHR, textStatus, errorThrown){ /* assign handler */
-            /* alert(jqXHR.responseText) */
-
             // Until finishing ajax, we show page here
-            ui.bCDeferred.resolve();
+            // ui.bCDeferred.resolve();
             // Error message
             window.plugins.toast.showShortBottom('連線錯誤');
             // alert("Network error occurred!");
         });
     },
 
-    boardPostBeforeShow: function(event, args)
+    boardPostBeforeShow: function(event, args, ui, page, evt)
     {
         var app = this;
-        app.boardTopicIndex = args[1];
+        if (app.boardsn != null 
+            && app.boardsn == args[1]) {
+            app.updateBoardPost(app.boardsn);
+            return;
+        }
 
+        evt.preventDefault();
+        app.boardsn = args[1];
+
+        var url = app.baseUrl
+            +"&semester="+app.semesterNow
+            +"&course_sn="+app.courseNow
+            +"&board="
+            +app.boardData[app.boardsn].sn
+            +"&mode=read_board_post";
+
+        var p = $.getJSON(url, function(data){
+            // Until finishing ajax, we show page here
+            ui.bCDeferred.resolve();
+
+            $.each(data, function(i2, v2) {
+                v2 = app.appendBoardPost(v2);
+                // console.log(v2.content);
+            });
+
+            app.boardData[args[1]].board_content = data;
+
+            app.updateBoardPost(args[1]);
+
+        }).error(function(jqXHR, textStatus, errorThrown){ /* assign handler */
+            // Until finishing ajax, we show page here
+            // ui.bCDeferred.resolve();
+            // Error message
+            window.plugins.toast.showShortBottom('連線錯誤');
+            // alert("Network error occurred!");
+        });
+
+    },
+
+    appendBoardPost: function(data)
+    {
+        data.course_sn = app.courseNow;
+        if (data.post_time.indexOf('.') !== -1) {
+            data.post_time = data.post_time.split('.')[0];
+        }
+
+        replacePattern1 = /\[\s*img[^>]*\]([^<]*)\[\s*\/\s*img\s*\]/ig;
+        data.content = data.content.replace(replacePattern1, '<img src="1">');
+
+        replacePattern1 = /\[\s*b[^>]*\]([^<]*)\[\s*\/\s*b\s*\]/ig;
+        data.content = data.content.replace(replacePattern1, '<strong>1</strong>');
+        return data;
+    },
+
+    updateBoardPost: function(board_sn)
+    {
         var tmp = [];
-        $.each(app.boardData[args[1]].board_content, function(i, v) {
+        $.each(app.boardData[board_sn].board_content, function(i, v) {
             if (v.parent == "0") {
                 tmp.push(v);
             }
@@ -775,109 +796,144 @@ appCtrl.app = {
 
         $("#board-post").html(app.boardPostTemplate(tmp));
         $("#board-post").enhanceWithin();
+
+        $("#board_post_header").html(
+            app.boardPostHeaderTemplate({board_sn: app.boardsn}));
+        $("#board_post_header").enhanceWithin();
     },
 
     boardPostContentBeforeShow: function(event, args)
     {
         var app = this;
-        this.boardPostsn = args[1];
-        $("#board_post_content_header").html(
-            app.boardPostHeader({post_id: app.boardTopicIndex}));
-        $("#board_post_content_header").enhanceWithin();
+        
+        app.boardPostsn = args[1];
 
+        var board_subject;
         var tmp = [];
-        $.each(app.boardData[app.boardTopicIndex].board_content, function(i, v) {
+        $.each(app.boardData[app.boardsn].board_content, function(i, v) {
             if (v.parent == app.boardPostsn) {
                 tmp.push(v);
             }
             else if (v.sn == app.boardPostsn) {
                 tmp.unshift(v);
+                board_subject = v.subject;
             }
         });
+        $("#board_post_content_header").html(
+            app.boardPostContentHeader(
+                {post_sn: app.boardPostsn,
+                 board_sn: app.boardsn,
+                 subject: board_subject}
+            ));
+        $("#board_post_content_header").enhanceWithin();
 
         $("#board-post-content").html(app.boardPostContentTemplate(tmp));
         $("#board-post-content").enhanceWithin();
+
+        $(".quote_btn").click(function() {
+            var post_sn = $(this).data('postsn');
+            $.mobile.changePage("#writing_board_post?quote&"
+                +app.boardsn+"&"+app.boardPostsn+"&"+post_sn, 
+                { transition: "slideup", 
+                  changeHash: false });
+        });
     },
 
-    // Helper function
-    bbcode_template: function(text)
+    writeBoardPostBeforeShow: function(event, args, ui, page, evt)
     {
-        // [b] and [/b] for bolding text.
-        // text = str_replace("[b]", "<span style=\"font-weight: bold\">", text);
-        // text = str_replace("[/b]", "</span>", text);
+        var app = this;
+        var tmp = args[1].split('&');
+        var board_ind = tmp[1];
+        var parent_sn = tmp[2];
+        if (tmp[0] === "publish") {
+            $("#writing_post_header").html(app.writingPostHeaderTemplate(
+                {board_ind: board_ind,
+                 publish_mode: 1,
+                 header_text: "發表主題"}
+            ));
+            $("#writing_post_header").enhanceWithin();
+            $('input#subject').val("");
+            $('input#subject').attr('readonly', false);
+            $('textarea#content').val("");
+        }
+        else if (tmp[0] === "reply") {
+            $("#writing_post_header").html(app.writingPostHeaderTemplate(
+                {post_sn: parent_sn,
+                 reply_mode: 1,
+                 header_text: "回覆"}
+            ));
+            $("#writing_post_header").enhanceWithin();
+            $('input#subject').val("RE: "+tmp[3]);
+            $('input#subject').attr('readonly', true);
+            $('textarea#content').val("");
+        }
+        else if (tmp[0] === "quote") {
+            $("#writing_post_header").html(app.writingPostHeaderTemplate(
+                {post_sn: parent_sn,
+                 reply_mode: 1,
+                 header_text: "回覆"}
+            ));
+            $("#writing_post_header").enhanceWithin();
 
-        // [i] and [/i] for italicizing text.
-        // text = str_replace("[i]", "<span style=\"font-style: italic\">", text);
-        // text = str_replace("[/i]", "</span>", text);
-        text = text.replace(/\[i\]/g, "<span style=\"font-style: italic\">");
-        text = text.replace(/\[\/i\]/g, "</span>");
+            var post_sn = tmp[3];
+            var url = app.baseUrl
+            +"&board_post_sn="+post_sn
+            +"&mode=read_board_post_by_sn";
 
-        // [u] and [/u] for underlining text.
-        text = text.replace(/\[u\]/g, "<span style=\"text-decoration: underline\">");
-        text = text.replace(/\[\/u\]/g, "</span>");
-        // text = str_replace("[u]", "<span style=\"text-decoration: underline\">", text);
-        // text = str_replace("[/u]", "</span>", text);
+            evt.preventDefault();
+            var p = $.getJSON(url, function(data){
+                // Until finishing ajax, we show page here
+                ui.bCDeferred.resolve();
+                
+                var text_subject = (data.subject.indexOf('RE:') == 0)
+                    ? data.subject : "RE: "+data.subject;
+                $('input#subject').val(text_subject);
+                $('input#subject').attr('readonly', true);
+                $('textarea#content').val(
+                    "[quote]引用 "+data.cauthor+"：\r\n"
+                    +data.content+"\r\n[/quote]");
+                $("#writing_post_header").enhanceWithin();
+                app.appendPublishBtnListener(tmp[0], board_ind, parent_sn);
 
+            }).error(function(jqXHR, textStatus, errorThrown){ /* assign handler */
+                // Error message
+                window.plugins.toast.showShortBottom('連線錯誤');
+            });
+        }
 
-        // [QUOTE] and [/QUOTE] for posting replies with quote, or just for quoting stuff.
-        text = text.replace(/\[quote\]/g, "<div class=\"quotebox\"><p class=\"quote_head\">");
-        text = text.replace(/\[\/quote\]/g, "</p></div>");
-        // text = str_replace("[quote]", "<div class=\"quotebox\"><p class=\"quote_head\">", text);
-        // text = str_replace("[/quote]", "</p></div>", text);
+        app.appendPublishBtnListener(tmp[0], board_ind, parent_sn);
+    },
 
-        // unordered lists
-        text = text.replace(/\[list\]/g, "<ul>");
-        text = text.replace(/\[\/list\]/g, "</ul>");
-        // text = str_replace("[list]", "<ul>", text);
-        // text = str_replace("[/list]", "</ul>", text);
+    appendPublishBtnListener: function(publish_type, board_ind, parent_sn)
+    {
+        $("#publish_btn").click(function(e) {
+            e.preventDefault();
+            var url = app.baseUrl + "&mode=write_board";
 
+            $.ajax({
+                type: "POST",
+                url: url,
+                dataType: "json",
+                data: $("#writing_board_form").serialize()
+                + "&board_sn="+app.boardData[board_ind].sn + "&parent="+parent_sn, 
+                // serializes the form's elements.
+                success: function(data)
+                {
+                    var page_params = (publish_type==='publish') ? "board_post?"+board_ind
+                        : "board_post_content?"+parent_sn;
 
-        // Patterns and replacements for URL and email tags..
-        // patterns = array();
-        // replacements = array();
+                    data[0] = app.appendBoardPost(data[0]);
+                    app.boardData[board_ind].board_content.unshift(data[0]);
 
-        // [img]image_url_here[/img] code..
-        // This one gets first-passed..
-        // text = text.replace(/\[list\]/g, "<ul>");
-
-        // patterns[] = "#\[img\]([^?](?:[^\[]+|\[(?!url))*?)\[/img\]#i";
-        // replacements[] = str_replace('{URL}', '\\1', '<img src="{URL}" border="0" />');
-
-
-
-        // // matches a [url]xxxx://www.phpbb.com[/url] code..
-        // patterns[] = "#\[url\]([\w]+?://([\w\#%&~/.\-;:=,?@\]+]+|\[(?!url=))*?)\[/url\]#is";
-        // url1 = str_replace('{URL}', '\\1', '<a href="{URL}" target="_blank" class="postlink">{DESCRIPTION}</a>');
-        // replacements[] = str_replace('{DESCRIPTION}', '\\1', url1);
-
-        // // [url]www.phpbb.com[/url] code.. (no xxxx:// prefix).
-        // patterns[] = "#\[url\]((www|ftp)\.([\w\#%&~/.\-;:=,?@\]+]+|\[(?!url=))*?)\[/url\]#is";
-        // url2 = str_replace('{URL}', 'http://\\1', '<a href="{URL}" target="_blank" class="postlink">{DESCRIPTION}</a>');
-        // replacements[] = str_replace('{DESCRIPTION}', '\\1', url2);
-
-        // // [url=xxxx://www.phpbb.com]phpBB[/url] code..
-        // patterns[] = "#\[url=([\w]+?://[\w\#%&~/.\-;:=,?@\[\]+]*?)\]([^?\n\r\t].*?)\[/url\]#is";
-        // url3 = str_replace('{URL}', '\\1', '<a href="{URL}" target="_blank" class="postlink">{DESCRIPTION}</a>');
-        // replacements[] = str_replace('{DESCRIPTION}', '\\2', url3);
-
-        // // [url=www.phpbb.com]phpBB[/url] code.. (no xxxx:// prefix).
-        // patterns[] = "#\[url=((www|ftp)\.[\w\#%&~/.\-;:=,?@\[\]+]*?)\]([^?\n\r\t].*?)\[/url\]#is";
-        // url4 = str_replace('{URL}', 'http://\\1', '<a href="{URL}" target="_blank" class="postlink">{DESCRIPTION}</a>');
-        // replacements[] = str_replace('{DESCRIPTION}', '\\3', url4);
-
-        // text = preg_replace(patterns, replacements, text);
-
-        // // colours
-        // color_open = str_replace('{COLOR}', '\\1', '<span style="color: {COLOR}">');
-        // text = preg_replace("/\[color=(\#[0-9A-F]{6}|[a-z]+)\]/si", color_open, text);
-        // text = str_replace("[/color]", "</span>", text);
-
-        // // size
-        // size_open = str_replace('{SIZE}', '\\1', '<span style="font-size: {SIZE}pt; line-height: normal">');
-        // text = preg_replace("/\[size=([1-3]?[0-9])\]/si", size_open, text);
-        // text = str_replace("[/size]", "</span>", text);
-
-        return text;
+                    $.mobile.changePage("#"+page_params, 
+                        {transition: "slideup", reverse: true, changeHash: false});
+                },
+                error: function(jqXHR, textStatus, errorThrown){ /* assign handler */
+                    window.plugins.toast.showShortBottom('發送文章時發生錯誤');
+                }
+            });
+            return false;
+        });
     },
 
     dump: function (obj)
@@ -896,8 +952,9 @@ appCtrl.router = new $.mobile.Router(
     {
         "#page1(?:[?](.*))?": {handler: "homeBeforeShow", events:"bC"},
         "#board_page(?:[?](.*))?": {handler: "boardBeforeCreate", events:"bC"},
-        "#board_post[?](\\d+)": {handler: "boardPostBeforeShow", events:"bs"},
+        "#board_post[?](\\d+)": {handler: "boardPostBeforeShow", events:"bC"},
         "#board_post_content[?](\\d+)": {handler: "boardPostContentBeforeShow", events:"bs"},
+        "#writing_board_post(?:[?](.*))?": {handler: "writeBoardPostBeforeShow", events:"bC"},
     },
     appCtrl.app
 );
